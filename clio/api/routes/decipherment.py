@@ -9,7 +9,9 @@ from clio.decipherment.ankaphala.tables import AnkaphalaVersion
 from clio.decipherment.bandhas.selector import bandha_engine
 from clio.decipherment.explainer import ComprehensiveDeciphermentReport
 from clio.decipherment.orchestrator import decipherment_orchestrator
+from clio.decipherment.provenance.registry import provenance_registry
 from clio.models.decipherment import BandhaPattern, DeciphermentRequest
+from clio.models.provenance import RuleProvenanceModel
 from clio.storage.db import get_db
 
 router = APIRouter(prefix="/api/v1/decipher", tags=["Decipherment"])
@@ -71,4 +73,24 @@ def list_supported_tables():
         "supported_versions": ankaphala_engine.list_supported_versions(),
         "default_version": AnkaphalaVersion.V1_YELLAPPA_SHASTRI_1953.value,
         "historical_source": "Siri Bhoovalaya (1953 Bangalore Edition, K. Yellappa Shastri)",
+        "audit_provenance": ankaphala_engine.get_table_provenance().model_dump(),
     }
+
+
+@router.get("/rules", response_model=List[RuleProvenanceModel])
+def list_decipherment_rules(rule_type: Optional[str] = None):
+    """Retrieve all registered decipherment rules, documentation levels, and verification states."""
+    return provenance_registry.list_rules(rule_type=rule_type)
+
+
+@router.get("/rules/{rule_id}/provenance", response_model=RuleProvenanceModel)
+def get_rule_provenance(rule_id: str):
+    """Retrieve complete bibliographic provenance and verification audit for a specific rule."""
+    rule = provenance_registry.get_rule_provenance(rule_id)
+    if not rule:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Decipherment rule '{rule_id}' is not registered in the provenance database.",
+        )
+    return rule
+

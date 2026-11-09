@@ -92,3 +92,4 @@ class AksharaTokenizer:
 
 
 akshara_tokenizer = AksharaTokenizer()
+

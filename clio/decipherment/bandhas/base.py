@@ -13,6 +13,7 @@ from clio.models.decipherment import (
     CoordinateStep,
     TraversalTrajectory,
 )
+from clio.models.provenance import DocumentationLevel, RuleVerificationState
 
 
 class TraversalDirection(str, Enum):
@@ -31,6 +32,14 @@ class BandhaMetadata(BaseModel):
     typical_length: int
     symmetry_order: int
     historical_source: str
+    verification_state: RuleVerificationState = RuleVerificationState.PARTIALLY_VERIFIED
+    documentation_level: DocumentationLevel = DocumentationLevel.INFERRED
+    provenance_rule_id: str = ""
+    is_geometric_visualization_only: bool = False
+    authenticity_disclaimer: str = (
+        "Coverage statistics reflect geometric completeness across the 27x27 grid. "
+        "High coverage does not prove or imply historical authenticity of this traversal sequence."
+    )
 
 
 class BaseBandha(ABC):
@@ -152,3 +161,4 @@ class BaseBandha(ABC):
             "points": path_points,
             "metadata": trajectory.properties,
         }
+

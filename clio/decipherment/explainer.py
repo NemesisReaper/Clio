@@ -5,6 +5,13 @@ from pydantic import BaseModel, Field
 
 from clio.decipherment.alignment.aligner import AlignmentReport
 from clio.models.graph import TraversalResult
+from clio.models.provenance import (
+    DeciphermentConfidenceBreakdown,
+    HumanVerificationStatus,
+    OutputTier,
+    RuleVerificationState,
+)
+from clio.decipherment.provenance.registry import provenance_registry
 
 
 class DecodingStatus(str, Enum):
@@ -20,7 +27,14 @@ class ComprehensiveDeciphermentReport(BaseModel):
     table_version: str
     decoding_status: DecodingStatus
 
-    # Primary texts
+    # 5 Output Tiers (Requirement 7)
+    directly_extracted_tokens: List[str] = Field(default_factory=list, description="Tier 1: Verbatim unmerged raw tokens")
+    algorithmically_generated_candidate_text: str = Field("", description="Tier 2: Ligature-synthesized candidate stream")
+    candidate_alignment_with_shloka: Optional[AlignmentReport] = Field(None, description="Tier 3: Character-level alignment")
+    historically_supported_interpretation: Optional[str] = Field(None, description="Tier 4: Attested historical translation")
+    speculative_interpretation: Optional[str] = Field(None, description="Tier 5: Proposed/unverified candidate reading")
+
+    # Primary texts (Backward compatibility)
     original_halegannada_reference: Optional[str] = None
     decoded_phonetic_sequence: str
     cleaned_segmented_verse: str
@@ -40,10 +54,16 @@ class ComprehensiveDeciphermentReport(BaseModel):
     supporting_references: List[str] = Field(default_factory=list)
     alternative_interpretations: List[str] = Field(default_factory=list)
 
-    # Confidence Metrics
+    # Multi-dimensional Confidence Metrics
     confidence_score: float
-    confidence_breakdown: Dict[str, float] = Field(default_factory=dict)
+    confidence_breakdown: Dict[str, Any] = Field(default_factory=dict)
+    detailed_confidence_breakdown: Optional[DeciphermentConfidenceBreakdown] = None
     uncertainty_notes: Optional[str] = None
+    is_authoritative_claim: bool = False
+    disclaimer: str = (
+        "This decipherment report reports independent evidential dimensions. "
+        "Linguistic plausibility alone does not claim or prove definitive historical authenticity."
+    )
 
 
 class BilingualDeciphermentExplainer:
@@ -93,9 +113,11 @@ class BilingualDeciphermentExplainer:
         reference_shloka: Optional[str],
         alignment: Optional[AlignmentReport],
         graph_context: Optional[TraversalResult],
+        direct_extracted_tokens: Optional[List[str]] = None,
+        matrix_completeness: float = 1.0,
     ) -> ComprehensiveDeciphermentReport:
         """Synthesize alignment, linguistic knowledge, and graph context into a bilingual report."""
-        # Determine decoding status
+        # 1. Determine decoding status
         if alignment and alignment.is_verified_match:
             status = DecodingStatus.VERIFIED_DECODING
         elif alignment and alignment.similarity_score >= 0.50:
@@ -103,21 +125,67 @@ class BilingualDeciphermentExplainer:
         else:
             status = DecodingStatus.TRANSLATION_ONLY
 
-        # Confidence calculation
-        alignment_weight = alignment.similarity_score if alignment else 0.40
-        matrix_completeness_weight = 1.0  # 729 verified cells
-        historical_attestation_weight = 0.95 if reference_shloka else 0.50
+        # 2. Look up rule and table verification states from provenance registry
+        bandha_rule_id = f"RULE_BANDHA_{bandha_name.upper()}_CONCENTRIC_SPIRAL" if "SARVATOBHADRA" in bandha_name.upper() else f"RULE_BANDHA_{bandha_name.upper()}"
+        bandha_verif_state = provenance_registry.get_rule_verification_state(bandha_rule_id)
+        if bandha_verif_state == RuleVerificationState.UNVERIFIED:
+            # Fallback check for general pattern name
+            for r_id in provenance_registry.rules:
+                if bandha_name.upper() in r_id:
+                    bandha_verif_state = provenance_registry.get_rule_verification_state(r_id)
+                    break
 
-        overall_confidence = round(
-            (alignment_weight * 0.50) + (matrix_completeness_weight * 0.25) + (historical_attestation_weight * 0.25),
+        bandha_score = (
+            1.0 if bandha_verif_state == RuleVerificationState.VERIFIED
+            else 0.65 if bandha_verif_state == RuleVerificationState.PARTIALLY_VERIFIED
+            else 0.35 if bandha_verif_state == RuleVerificationState.EXPERIMENTAL
+            else 0.10
+        )
+
+        table_verif_state = (
+            RuleVerificationState.PARTIALLY_VERIFIED
+            if "1953" in table_version
+            else RuleVerificationState.EXPERIMENTAL
+        )
+        table_score = 0.70 if table_verif_state == RuleVerificationState.PARTIALLY_VERIFIED else 0.40
+
+        # Multi-dimensional decoupled confidence measurements (Requirement 7)
+        alignment_score = alignment.similarity_score if alignment else None
+        evidence_coverage = 0.85 if reference_shloka else 0.30
+
+        # Non-authoritative heuristic composite score
+        heuristic_composite = round(
+            ((alignment_score if alignment_score is not None else 0.40) * 0.40)
+            + (matrix_completeness * 0.20)
+            + (bandha_score * 0.20)
+            + (table_score * 0.20),
             3,
         )
 
-        confidence_breakdown = {
-            "alignment_similarity": alignment_weight,
-            "matrix_cell_integrity": matrix_completeness_weight,
-            "historical_attestation": historical_attestation_weight,
-            "overall_score": overall_confidence,
+        detailed_breakdown = DeciphermentConfidenceBreakdown(
+            matrix_extraction_completeness=min(1.0, max(0.0, matrix_completeness)),
+            bandha_rule_verification=bandha_verif_state,
+            bandha_rule_verification_score=bandha_score,
+            ankaphala_table_verification=table_verif_state,
+            ankaphala_table_verification_score=table_score,
+            traversal_reproducibility=1.0,
+            reference_alignment_quality=alignment_score,
+            historical_evidence_coverage=evidence_coverage,
+            human_verification_status=HumanVerificationStatus.PENDING,
+            is_calibrated_heuristic=True,
+            heuristic_composite_score=heuristic_composite,
+        )
+
+        confidence_breakdown_dict = {
+            "matrix_extraction_completeness": matrix_completeness,
+            "bandha_rule_verification": bandha_verif_state.value,
+            "bandha_rule_score": bandha_score,
+            "ankaphala_table_verification": table_verif_state.value,
+            "ankaphala_table_score": table_score,
+            "alignment_similarity": alignment_score or 0.0,
+            "historical_evidence_coverage": evidence_coverage,
+            "heuristic_composite_score": heuristic_composite,
+            "overall_score": heuristic_composite,
         }
 
         # Check curated knowledge base for exact historical match
@@ -134,6 +202,8 @@ class BilingualDeciphermentExplainer:
             kan_tika = commentary["kannada_tika"]
             refs = commentary["references"]
             alts = commentary["alternatives"]
+            hist_supported_interp = eng_trans
+            speculative_interp = None
         else:
             eng_trans = (
                 f"Candidate decipherment of passage from {chakra_id} via {bandha_name}. "
@@ -147,6 +217,8 @@ class BilingualDeciphermentExplainer:
             kan_tika = "ಐತಿಹಾಸಿಕ ಹಳೆಗನ್ನಡ ಪಠ್ಯದ ಅನ್ವಯ ಹಾಗೂ ಪರಾಮರ್ಶೆ ಪ್ರಕ್ರಿಯೆಯಲ್ಲಿದೆ."
             refs = ["Kumudendu Muni, Siri Bhoovalaya (c. 850 CE)."]
             alts = ["Awaiting alternate readings from secondary manuscript copies."]
+            hist_supported_interp = None
+            speculative_interp = eng_trans
 
         # Linked historical entities
         linked_entities = []
@@ -160,6 +232,11 @@ class BilingualDeciphermentExplainer:
             bandha_name=bandha_name,
             table_version=table_version,
             decoding_status=status,
+            directly_extracted_tokens=direct_extracted_tokens or [],
+            algorithmically_generated_candidate_text=decoded_phonetics,
+            candidate_alignment_with_shloka=alignment,
+            historically_supported_interpretation=hist_supported_interp,
+            speculative_interpretation=speculative_interp,
             original_halegannada_reference=reference_shloka,
             decoded_phonetic_sequence=decoded_phonetics,
             cleaned_segmented_verse=alignment.candidate_normalized if alignment else decoded_phonetics,
@@ -167,7 +244,8 @@ class BilingualDeciphermentExplainer:
             english_philosophical_context=eng_hist,
             english_historical_commentary=(
                 f"Decipherment executed via {bandha_name} trajectory. "
-                f"Historical verification status: {status.value}."
+                f"Historical verification status: {status.value}. "
+                f"Bandha verification: {bandha_verif_state.value}."
             ),
             modern_kannada_bhavartha=kan_bhav,
             modern_kannada_tika=kan_tika,
@@ -175,13 +253,16 @@ class BilingualDeciphermentExplainer:
             historical_entities_linked=linked_entities,
             supporting_references=refs,
             alternative_interpretations=alts,
-            confidence_score=overall_confidence,
-            confidence_breakdown=confidence_breakdown,
+            confidence_score=heuristic_composite,
+            confidence_breakdown=confidence_breakdown_dict,
+            detailed_confidence_breakdown=detailed_breakdown,
             uncertainty_notes=(
                 None if status == DecodingStatus.VERIFIED_DECODING
-                else "Candidate reading: Requires additional historical verification before asserting definitive truth."
+                else "Candidate reading: Requires additional primary manuscript verification before asserting definitive truth."
             ),
+            is_authoritative_claim=False,
         )
 
 
 bilingual_explainer = BilingualDeciphermentExplainer()
+

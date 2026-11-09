@@ -3,7 +3,7 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from clio.api.routes import decipherment, documents, graph, health
+from clio.api.routes import decipherment, documents, graph, health, validation
 from clio.config import settings
 from clio.storage.db import init_db
 
@@ -44,6 +44,7 @@ def create_app() -> FastAPI:
     app.include_router(documents.router)
     app.include_router(graph.router)
     app.include_router(decipherment.router)
+    app.include_router(validation.router)
 
     return app
 

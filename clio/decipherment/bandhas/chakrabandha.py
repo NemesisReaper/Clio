@@ -11,6 +11,7 @@ Traversal alternates between radial spoke progression and concentric rim revolut
 from typing import Any, Dict, List, Optional, Tuple
 
 from clio.models.decipherment import BandhaPattern
+from clio.models.provenance import DocumentationLevel, RuleVerificationState
 from clio.decipherment.bandhas.base import (
     BandhaMetadata,
     BaseBandha,
@@ -45,6 +46,13 @@ class Chakrabandha(BaseBandha):
             typical_length=729,
             symmetry_order=8,
             historical_source="Kumudendu Muni, Siri Bhoovalaya & Agnipurana Chitra-Kavya chapters.",
+            verification_state=RuleVerificationState.PARTIALLY_VERIFIED,
+            documentation_level=DocumentationLevel.INFERRED,
+            provenance_rule_id="RULE_BANDHA_CHAKRABANDHA_WHEEL",
+            authenticity_disclaimer=(
+                "Chakrabandha layout with hub, spokes, and rim is classical poetics canon. "
+                "The specific discrete sequence across the 27x27 matrix is an inferred geometric model."
+            ),
         )
         super().__init__(meta)
 
@@ -89,3 +97,4 @@ class Chakrabandha(BaseBandha):
                 return coords[:max_steps]
 
         return coords[:max_steps]
+

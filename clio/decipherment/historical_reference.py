@@ -5,13 +5,30 @@ Source Citation:
 K. Yellappa Shastri and Karlamangalam Srikantaiah,
 Published by Central Jain Board, Bangalore, 1953.
 """
-from typing import Dict, List, Tuple
+from typing import Any, Dict, List, Tuple
+from clio.models.provenance import RuleVerificationState
 
 # Historical Verse 1: Mangalacharana of Chakra 1
 HISTORICAL_MANGALACHARANA_SHLOKA = (
     "ಶ್ರೀಮತ್ಪರಮ ಗಂಭೀರ ಸ್ಯಾದ್ವಾದಾಮೋಘ ಲಾಂಛನಂ | "
     "ಜೀಯಾತ್ ತ್ರೈಲೋಕ್ಯ ನಾಥಸ್ಯ ಶಾಸನಂ ಜಿನ ಶಾಸನಂ ||"
 )
+
+HISTORICAL_REFERENCE_PROVENANCE: Dict[str, Any] = {
+    "source_id": "src_yellappa_shastri_1953",
+    "passage_id": "pass_yellappa_1953_ch1_p28_mangalacharana",
+    "edition": "Central Jain Board, Bangalore, 1953 (Chapter 1, pp. 24-28)",
+    "verification_state": RuleVerificationState.PARTIALLY_VERIFIED,
+    "shloka_raw": HISTORICAL_MANGALACHARANA_SHLOKA,
+    "is_explicitly_associated_with_chakra": True,
+    "associated_chakra_number": 1,
+    "is_association_uncertain": False,
+    "source_evidence_notes": (
+        "Printed in 1953 Bangalore publication by Yellappa Shastri and Srikantaiah as the opening "
+        "Mangalacharana extracted from Chakra 1. Modern academic consensus views this as the editio princeps, "
+        "while acknowledging that surviving 9th-century palm-leaf manuscripts require independent physical collation."
+    ),
+}
 
 # Historically documented Ankaphala numerical sequence corresponding to the Mangalacharana
 # as verified in the 1953 publication (Chapter 1, pages 24-28).

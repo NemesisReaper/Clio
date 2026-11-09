@@ -112,3 +112,4 @@ def test_bandha_engine_registry_and_direction():
     fwd_first = (traj_fwd.steps[0].row, traj_fwd.steps[0].col)
     rev_last = (traj_rev.steps[-1].row, traj_rev.steps[-1].col)
     assert fwd_first == rev_last
+

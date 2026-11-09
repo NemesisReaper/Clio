@@ -148,6 +148,102 @@ class JobRecord(Base):
     document = relationship("DocumentRecord", back_populates="jobs")
 
 
+class HistoricalSourceRecord(Base):
+    __tablename__ = "historical_sources"
+
+    id = Column(String(64), primary_key=True)
+    title = Column(String(255), nullable=False)
+    authors_or_editors = Column(String(255), nullable=False)
+    publication_year = Column(Integer, nullable=True)
+    publisher = Column(String(255), nullable=True)
+    city = Column(String(128), nullable=True)
+    edition = Column(String(128), nullable=True)
+    physical_location = Column(String(255), nullable=True)
+    isbn_or_catalog_id = Column(String(128), nullable=True)
+    description = Column(Text, nullable=True)
+    is_primary_manuscript = Column(Boolean, default=False)
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+    editions = relationship("SourceEditionRecord", back_populates="source", cascade="all, delete-orphan")
+    passages = relationship("SourcePassageRecord", back_populates="source", cascade="all, delete-orphan")
+
+
+class SourceEditionRecord(Base):
+    __tablename__ = "source_editions"
+
+    id = Column(String(64), primary_key=True)
+    source_id = Column(String(64), ForeignKey("historical_sources.id"), nullable=False, index=True)
+    edition_name = Column(String(255), nullable=False)
+    publication_year = Column(Integer, nullable=False)
+    editor = Column(String(255), nullable=True)
+    notes = Column(Text, nullable=True)
+
+    source = relationship("HistoricalSourceRecord", back_populates="editions")
+    passages = relationship("SourcePassageRecord", back_populates="edition")
+
+
+class SourcePassageRecord(Base):
+    __tablename__ = "source_passages"
+
+    id = Column(String(64), primary_key=True)
+    source_id = Column(String(64), ForeignKey("historical_sources.id"), nullable=False, index=True)
+    edition_id = Column(String(64), ForeignKey("source_editions.id"), nullable=True, index=True)
+    page_number = Column(Integer, nullable=True)
+    section_or_stanza = Column(String(255), nullable=False)
+    transcription = Column(Text, nullable=True)
+    plate_or_figure = Column(String(255), nullable=True)
+
+    source = relationship("HistoricalSourceRecord", back_populates="passages")
+    edition = relationship("SourceEditionRecord", back_populates="passages")
+
+
+class RuleProvenanceRecord(Base):
+    __tablename__ = "rule_provenance"
+
+    id = Column(String(64), primary_key=True)
+    rule_id = Column(String(64), unique=True, nullable=False, index=True)
+    rule_name = Column(String(255), nullable=False)
+    rule_type = Column(String(64), nullable=False)
+    source_id = Column(String(64), ForeignKey("historical_sources.id"), nullable=True, index=True)
+    passage_id = Column(String(64), ForeignKey("source_passages.id"), nullable=True, index=True)
+    exact_citation = Column(Text, nullable=False)
+    documentation_level = Column(String(32), nullable=False)
+    verification_state = Column(String(32), nullable=False)
+    author_or_editor = Column(String(255), nullable=False)
+    publication_date = Column(String(64), nullable=True)
+    implementation_location = Column(String(255), nullable=False)
+    test_coverage_location = Column(String(255), nullable=False)
+    known_limitations = Column(Text, nullable=False)
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+
+class RuleVerificationRecord(Base):
+    __tablename__ = "rule_verifications"
+
+    id = Column(String(64), primary_key=True)
+    rule_id = Column(String(64), ForeignKey("rule_provenance.rule_id"), nullable=False, index=True)
+    verification_state = Column(String(32), nullable=False)
+    verifying_authority = Column(String(255), nullable=False)
+    verification_date = Column(DateTime, default=datetime.utcnow)
+    rationale = Column(Text, nullable=False)
+    identified_discrepancies_json = Column(Text, default="[]")
+
+
+class ValidationResultRecord(Base):
+    __tablename__ = "validation_results"
+
+    id = Column(String(64), primary_key=True)
+    target_type = Column(String(32), nullable=False)
+    target_id = Column(String(64), nullable=False, index=True)
+    is_valid = Column(Boolean, nullable=False)
+    verification_state = Column(String(32), nullable=False)
+    validation_timestamp = Column(DateTime, default=datetime.utcnow)
+    metrics_json = Column(Text, default="{}")
+    warnings_json = Column(Text, default="[]")
+    errors_json = Column(Text, default="[]")
+    provenance_chain_json = Column(Text, default="[]")
+
+
 def get_engine():
     """Create database engine with directory ensure for SQLite."""
     settings.ensure_directories()

@@ -23,6 +23,7 @@ Supported Traversal Modes:
 from typing import Any, Dict, List, Optional, Tuple
 
 from clio.models.decipherment import BandhaPattern
+from clio.models.provenance import DocumentationLevel, RuleVerificationState
 from clio.decipherment.bandhas.base import (
     BandhaMetadata,
     BaseBandha,
@@ -44,7 +45,16 @@ class SarvatobhadraBandha(BaseBandha):
             ),
             typical_length=729,
             symmetry_order=4,
-            historical_source="Siri Bhoovalaya Chapter 1, Kumudendu Muni (c. 800-850 CE).",
+            historical_source="Siri Bhoovalaya Chapter 1, Kumudendu Muni (c. 800-850 CE); Dandin, Kavyadarsha III.39-40.",
+            verification_state=RuleVerificationState.PARTIALLY_VERIFIED,
+            documentation_level=DocumentationLevel.INFERRED,
+            provenance_rule_id="RULE_BANDHA_SARVATOBHADRA_CONCENTRIC_SPIRAL",
+            authenticity_disclaimer=(
+                "Sarvatobhadra symmetry is verified in classical poetics (Kavyadarsha III.39). "
+                "However, the sequential concentric perimeter spiral trajectory is an algorithmic reconstruction "
+                "proposed in modern scholarship to exhaustively read all 729 cells. 100% coverage does not prove "
+                "historical authenticity of this specific path."
+            ),
         )
         super().__init__(meta)
 
@@ -138,3 +148,4 @@ class SarvatobhadraBandha(BaseBandha):
                 return coords[:max_steps]
 
         return coords[:max_steps]
+

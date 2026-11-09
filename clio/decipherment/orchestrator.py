@@ -84,7 +84,8 @@ class DeciphermentOrchestrator:
             # 4. Numerical Stream Extraction (Strictly zero silent infill)
             numerical_stream = self.bandha_engine.extract_numerical_stream(matrix, trajectory)
 
-            # 5. Ankaphala Substitution
+            # 5. Ankaphala Substitution: Raw (Tier 1) and Composed (Tier 2)
+            raw_tokens = self.ankaphala_engine.substitute_raw(numerical_stream)
             decoded_phonetics = self.ankaphala_engine.substitute(
                 numerical_stream, version=table_version
             )
@@ -119,7 +120,12 @@ class DeciphermentOrchestrator:
                 max_depth=2,
             )
 
-            # 9. Bilingual Explanation Generation
+            # 9. Bilingual Explanation Generation with 5-Tier Output Separation
+            matrix_comp = (
+                matrix.total_extracted_cells / 729.0
+                if matrix.total_extracted_cells and matrix.total_extracted_cells > 0
+                else 1.0
+            )
             report = self.explainer.generate_report(
                 chakra_id=request.chakra_id,
                 bandha_name=request.selected_bandha.value,
@@ -128,6 +134,8 @@ class DeciphermentOrchestrator:
                 reference_shloka=ref_text,
                 alignment=alignment,
                 graph_context=graph_context,
+                direct_extracted_tokens=raw_tokens,
+                matrix_completeness=matrix_comp,
             )
 
             # 10. Store Evidence and Provenance in Knowledge Graph
@@ -202,3 +210,4 @@ class DeciphermentOrchestrator:
 
 
 decipherment_orchestrator = DeciphermentOrchestrator()
+

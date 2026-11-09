@@ -18,6 +18,7 @@ Total steps for full matrix coverage: 27 x 27.
 from typing import Any, Dict, List, Optional, Tuple
 
 from clio.models.decipherment import BandhaPattern
+from clio.models.provenance import DocumentationLevel, RuleVerificationState
 from clio.decipherment.bandhas.base import (
     BandhaMetadata,
     BaseBandha,
@@ -41,6 +42,13 @@ class GomutrikaBandha(BaseBandha):
             typical_length=729,
             symmetry_order=2,
             historical_source="Dandin, Kavyadarsha III.63-65 & Kumudendu Muni, Siri Bhoovalaya.",
+            verification_state=RuleVerificationState.PARTIALLY_VERIFIED,
+            documentation_level=DocumentationLevel.INFERRED,
+            provenance_rule_id="RULE_BANDHA_GOMUTRIKA_ZIGZAG",
+            authenticity_disclaimer=(
+                "Gomutrika wave alternation is attested in Sanskrit/Kannada poetics (Kavyadarsha III.63). "
+                "The row-by-row traversal across 27 rows is an inferred computational formalization."
+            ),
         )
         super().__init__(meta)
 
@@ -104,3 +112,4 @@ class GomutrikaBandha(BaseBandha):
                     return coords
 
         return coords[:max_steps]
+

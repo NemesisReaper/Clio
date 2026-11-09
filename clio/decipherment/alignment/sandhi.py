@@ -52,3 +52,4 @@ class HalegannadaSandhiResolver:
 
 
 sandhi_resolver = HalegannadaSandhiResolver()
+

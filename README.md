@@ -1,8 +1,11 @@
-# Siri Bhoovalaya Agentic Decipherment Platform — Day 1 & Day 2
+# Siri Bhoovalaya Agentic Decipherment Platform — Days 1, 2 & 3
 
 **Siri Bhoovalaya** (ಸಿರಿಭೂವಲಯ) is a monumental 9th-century CE work by Digambara Jain monk and poet **Kumudendu Muni**. The manuscript encodes multilayered poetic works across multiple languages using 27 × 27 numerical matrices (Chakras) with 729 cells per matrix.
 
-This repository implements **Day 1** (PDF Intelligence, Extraction, and Provenance Knowledge Graph) and **Day 2** (Core Numerical-to-Phonetic Decipherment Engine, Bandhas, Ankaphala, Reference Alignment, and Orchestrator) of a seven-day agentic decipherment platform.
+This repository implements **Days 1, 2, and 3** of a seven-day agentic decipherment platform:
+- **Day 1**: PDF Intelligence, 27x27 Matrix Extraction, Halegannada Shloka Extraction, and Provenance Knowledge Graph.
+- **Day 2**: Core Decipherment Engine, Bandha Traversals, 1953 Ankaphala Substitution, Sandhi-Aware Needleman-Wunsch Alignment, and Orchestrator.
+- **Day 3**: Historical Validation, Source-Level Provenance, Decoupled Multi-Dimensional Confidence, and Real-Data Integration.
 
 ---
 
@@ -31,23 +34,24 @@ This repository implements **Day 1** (PDF Intelligence, Extraction, and Provenan
                                                  │
                                                  ▼
             ┌─────────────────────────────────────────────────────────────────────────┐
-            │                    CORE DECIPHERMENT PIPELINE (STAGE B)                 │
+            │               DECIPHERMENT ENGINE WITH PROVENANCE GUARDRAILS            │
             │                                                                         │
             │  Chakra ID ──▶ Matrix Retrieval ──▶ Bandha Traversal ──▶ Number Stream  │
             │       │                                                       │         │
             │       ▼                                                       ▼         │
-            │  Graph Context                                        Ankaphala Engine  │
-            │  (Syadvada, Jain Lit)                                 (64-Akshara Table)│
+            │  Provenance Registry                                  Ankaphala Engine  │
+            │  (Verified / Partial / Experimental)                 (Raw Table Tier 1) │
             │       │                                                       │         │
             │       │                                                       ▼         │
             │       │                                               Ligature Synthesis│
+            │       │                                               (Candidate Tier 2)│
             │       │                                                       │         │
             │       ▼                                                       ▼         │
             │  Bilingual Explainer ◀── Halegannada Aligner ◀── Phonetic Stream        │
-            │  (English + Modern K.)   (Needleman-Wunsch & Sandhi)                    │
+            │  (Tiers 4 & 5 Interp)    (Candidate Alignment Tier 3)                   │
             │       │                                                                 │
             │       ▼                                                                 │
-            │  Decipherment Report (Evidence & Hypothesis Nodes in Knowledge Graph)   │
+            │  Decoupled Confidence Breakdown (Evidence & Hypothesis Nodes in Graph)  │
             └─────────────────────────────────────────────────────────────────────────┘
 ```
 
@@ -74,32 +78,36 @@ This repository implements **Day 1** (PDF Intelligence, Extraction, and Provenan
 ### 4. Provenance-Aware Knowledge Graph (`clio.graph` & `clio.storage.graph_store`)
 - **13 Node Types**: `Document`, `Page`, `Chakra`, `Shloka`, `Passage`, `Term`, `Concept`, `Person`, `Work`, `Language`, `Source`, `Evidence`, `Hypothesis`.
 - **11 Relationship Types**: `CONTAINS_PAGE`, `CONTAINS_CHAKRA`, `CONTAINS_SHLOKA`, `HAS_PASSAGE`, `CONTAINS_TERM`, `REFERS_TO`, `DISCUSSES`, `HAS_VARIANT`, `ASSOCIATED_WITH`, `SUPPORTED_BY`, `DERIVED_FROM`.
-- **Hypothesis Guardrails**: Speculative claims are isolated into `Hypothesis` nodes with status `PROPOSED`.
 - **Middle-Out Traversal**: Bidirectional expansion from anchor entity with depth limit (default 3, bounds 1–5), relationship filtering, date bounds, and cycle prevention.
 
-### 5. Bandha Traversal Engine (`clio.decipherment.bandhas`)
-- **Sarvatobhadra**: Omnidirectional symmetrical traversal (`CONCENTRIC_SPIRAL` with 729 cells and 100% coverage, `SERPENTINE_SYMMETRIC`, `RADIAL_OUTWARD`).
-- **Padmabandha**: 8-petal (Ashtadala) lotus petal loops radiating from center pericarp $(13, 13)$.
-- **Gomutrika**: Meandering zigzag wave trajectory across adjacent row pairs with period 2 and amplitude 1.
-- **Chakrabandha**: Concentric circular wheel rim and 8-radial spokes connecting center $(13, 13)$ to the rim perimeter.
-- **Guarantees**: Coordinate bounds validation ($[0, 26]$), duplicate detection, coverage calculation, forward/reverse direction preservation, and visualization vectors ($[x/26, y/26]$).
+### 5. Audited Bandha Traversal Engine (`clio.decipherment.bandhas`)
+- **Sarvatobhadra**: Omnidirectional symmetrical traversal (`CONCENTRIC_SPIRAL` with 729 cells and 100% coverage, `SERPENTINE_SYMMETRIC`, `RADIAL_OUTWARD`). Tagged `PARTIALLY_VERIFIED`.
+- **Padmabandha**: 8-petal (Ashtadala) lotus petal loops radiating from center pericarp $(13, 13)$. Tagged `PARTIALLY_VERIFIED`.
+- **Gomutrika**: Meandering zigzag wave trajectory across adjacent row pairs with period 2 and amplitude 1. Tagged `PARTIALLY_VERIFIED`.
+- **Chakrabandha**: Concentric circular wheel rim and 8-radial spokes connecting center $(13, 13)$ to the perimeter. Tagged `PARTIALLY_VERIFIED`.
+- **Authenticity Disclaimer**: Coverage statistics reflect geometric completeness only; they do not imply or prove historical correctness.
 
-### 6. Ankaphala Substitution Engine (`clio.decipherment.ankaphala`)
-- **Historical Grounding**: Complete 64-akshara substitution table from the published 1953 Bangalore edition by K. Yellappa Shastri and K. Srikantaiah (`v1_1953_yellappa_shastri`).
-- **Archaic Phonemes**: Preserves archaic Halegannada ಱ (51) and ೞ (52).
-- **Orthographic Ligature Composition**: Seamlessly combines sequential consonant base characters with vowel matras and anusvara/visarga (`ಗ` + `ಅಂ` $\to$ `ಗಂ`, `ಭ` + `ಈ` $\to$ `ಭೀ`).
-- **Reversible Lookup**: Two-way indexing (`number_to_akshara` and `akshara_to_number`).
+### 6. Audited Ankaphala Substitution Engine (`clio.decipherment.ankaphala`)
+- **Raw Historical Table**: Strictly uncomposed 1-to-1 table from the 1953 Bangalore publication by K. Yellappa Shastri and K. Srikantaiah (`RAW_HISTORICAL_ANKAPHALA_V1`), preserving archaic ಱ (51) and ೞ (52).
+- **Independent Normalized Lookup**: `HISTORICAL_ANKAPHALA_V1` provides phonetic descriptions and matra annotations.
+- **Substitution Modes**:
+  - `substitute_raw()`: Extracts literal unmerged graphemes (Tier 1: `DIRECTLY_EXTRACTED_TEXT`).
+  - `substitute()`: Applies algorithmic Indic ligature composition (Tier 2: `ALGORITHMICALLY_GENERATED_CANDIDATE_TEXT`).
 
-### 7. Halegannada Reference Alignment Engine (`clio.decipherment.alignment`)
-- **Akshara Tokenizer**: Decomposes Kannada Unicode into orthographic syllables, handling consonant clusters (`C + virama + C`), independent vowels, dependent vowel signs, and computes prosodic weights (Laghu = 1, Guru = 2).
-- **Sandhi & Sound-Shift Resolver**: Models historical Kannada sound shifts (ಱ $\leftrightarrow$ ರ, ೞ $\leftrightarrow$ ಳ/ಲ) and classical Sandhi transformations (Adesha $k \to g, t \to d, p \to b$, Lopa, Agama).
-- **Needleman-Wunsch Phonetic Aligner**: Dynamic programming sequence alignment with customizable penalties and Sandhi equivalence weights; computes character-level alignment diffs, prosodic meter analysis (Kanda / Anushtup), and windowed multi-verse scanning.
+### 7. Historical Validation & Source Integration (`clio.validation`)
+- **Matrix Dataset Auditing**: Audits dimensions, cell count, missing cells, and frequency distribution across $[1, 64]$.
+- **Reference Shloka Auditing**: Validates verse markers, archaic characters, and explicit source associations.
+- **Non-Association Guardrail**: Strictly prohibits automatically associating a shloka with a Chakra based on alignment scores alone.
+- **Real-Data Availability Inspection**: Checks whether authentic digitized manuscript PDFs are deposited; reports `PENDING_PRIMARY_SOURCE_DEPOSIT` without fabricating synthetic evidence.
 
-### 8. Decipherment Orchestrator (`clio.decipherment.orchestrator`)
-- Implements the complete 10-step pipeline:
-  `Chakra ID` $\to$ `Matrix retrieval` $\to$ `Bandha selection` $\to$ `Coordinate traversal` $\to$ `Numerical extraction` $\to$ `Ankaphala substitution` $\to$ `Phonetic normalization` $\to$ `Shloka alignment` $\to$ `Historical context retrieval` $\to$ `Candidate decipherment report`.
-- Generates bilingual English and Modern Kannada explanations (*ಹೊಸಗನ್ನಡ ವಿವರಣೆ*).
-- Stores immutable `Evidence` and `Hypothesis` nodes in the Knowledge Graph.
+### 8. Decoupled Confidence & 5-Tier Output Reporting (`clio.decipherment.explainer`)
+- **Decoupled Evidential Dimensions**: Reports matrix completeness, bandha rule verification, ankaphala table verification, reproducibility, alignment quality, historical evidence coverage, and human verification status independently.
+- **5 Output Tiers**:
+  1. `DIRECTLY_EXTRACTED_TEXT`
+  2. `ALGORITHMICALLY_GENERATED_CANDIDATE_TEXT`
+  3. `CANDIDATE_ALIGNMENT_WITH_SHLOKA`
+  4. `HISTORICALLY_SUPPORTED_INTERPRETATION`
+  5. `SPECULATIVE_INTERPRETATION`
 
 ---
 
@@ -117,12 +125,19 @@ This repository implements **Day 1** (PDF Intelligence, Extraction, and Provenan
 | `GET` | `/api/v1/documents/{document_id}/shlokas` | Retrieve extracted Halegannada shlokas |
 | `POST` | `/api/v1/graph/traverse` | Middle-out knowledge graph traversal from anchor entity |
 
-### Decipherment Engine (Day 2)
+### Decipherment & Provenance (Days 2 & 3)
 | Method | Endpoint | Description |
 |--------|----------|-------------|
-| `GET` | `/api/v1/decipher/bandhas` | List all supported Bandhas, descriptions, and coverage stats |
-| `GET` | `/api/v1/decipher/tables` | List versioned Ankaphala substitution tables |
-| `POST` | `/api/v1/decipher` | Run full decipherment orchestrator pipeline on a stored Chakra |
+| `GET` | `/api/v1/decipher/bandhas` | List supported Bandhas, mathematical rules, and coverage |
+| `GET` | `/api/v1/decipher/tables` | List versioned Ankaphala tables and audit provenance |
+| `GET` | `/api/v1/decipher/rules` | List all decipherment rules and verification states |
+| `GET` | `/api/v1/decipher/rules/{rule_id}/provenance` | Retrieve bibliographic citations and audit records for a rule |
+| `GET` | `/api/v1/sources` | List canonical historical sources and critical editions |
+| `GET` | `/api/v1/sources/{source_id}` | Retrieve bibliographic details for a specific historical source |
+| `GET` | `/api/v1/validation/real-data-status` | Inspect availability of user-provided primary manuscripts |
+| `GET` | `/api/v1/validation/{result_id}` | Retrieve stored validation audit result |
+| `POST` | `/api/v1/validation/run` | Execute formal validation check on a rule or stored Chakra |
+| `POST` | `/api/v1/decipher` | Run full decipherment orchestrator returning 5-tier bilingual report |
 
 ---
 
@@ -152,7 +167,7 @@ uvicorn clio.api.app:app --host 0.0.0.0 --port 8000 --reload
 
 ## Running the Verification Test Suite
 
-All 36 tests execute in ~7 seconds with 100% pass rate:
+All 47 tests execute in ~9 seconds with 100% pass rate:
 
 ```bash
 $env:PYTHONPATH = "."
@@ -160,7 +175,8 @@ $env:PYTHONPATH = "."
 ```
 
 ### Test Suite Breakdown:
-- `tests/test_ankaphala_engine.py`: 64-akshara table integrity, archaic ಱ and ೞ, substitution, ligature composition, reversible lookup.
+- `tests/test_historical_validation.py`: Provenance flagging, experimental bandhas, raw Ankaphala table independence, missing cells rejection, false positive alignment detection, verbatim text preservation, uncertain association guardrails, reproducibility across runs, real-data status reporting, decoupled confidence breakdown, and REST API endpoints.
+- `tests/test_ankaphala_engine.py`: 64-akshara table integrity, archaic ಱ and ೞ, substitution, ligature composition, reverse lookup.
 - `tests/test_bandha_engine.py`: Sarvatobhadra spiral, Padmabandha 8-petal loops, Gomutrika zigzag, Chakrabandha wheel, registry, coverage calculation.
 - `tests/test_reference_alignment.py`: Akshara tokenization, prosodic weights, Sandhi sound-shift equivalence, Needleman-Wunsch alignment with character diffs.
 - `tests/test_decipherment_orchestrator.py`: Full end-to-end integration test against published historical Chakra 1 Mangalacharana data.

@@ -5,8 +5,12 @@ from typing import Any, Dict, List, Optional, Set, Tuple
 from clio.models.decipherment import PhoneticMapping
 from clio.decipherment.ankaphala.tables import (
     HISTORICAL_ANKAPHALA_V1,
+    RAW_HISTORICAL_ANKAPHALA_V1,
+    TABLE_V1_PROVENANCE_AUDIT,
     AksharaEntry,
     AnkaphalaVersion,
+    RawAksharaEntry,
+    TableProvenanceMetadata,
 )
 
 logger = logging.getLogger(__name__)
@@ -58,6 +62,33 @@ class AnkaphalaEngine:
         if version not in self._tables:
             raise ValueError(f"Unknown Ankaphala version: {version}")
         return self._tables[version]
+
+    def get_raw_table(self) -> Dict[int, RawAksharaEntry]:
+        """Retrieve the verbatim unadulterated 1953 historical table without algorithmic extensions."""
+        return RAW_HISTORICAL_ANKAPHALA_V1
+
+    def get_table_provenance(
+        self, version: AnkaphalaVersion = AnkaphalaVersion.V1_YELLAPPA_SHASTRI_1953
+    ) -> TableProvenanceMetadata:
+        """Retrieve historical source and audit verification metadata for the table."""
+        if version == AnkaphalaVersion.V1_YELLAPPA_SHASTRI_1953:
+            return TABLE_V1_PROVENANCE_AUDIT
+        return TABLE_V1_PROVENANCE_AUDIT
+
+    def substitute_raw(self, numbers: List[int]) -> List[str]:
+        """Convert numbers using strictly literal historical table tokens without ligature composition.
+        
+        Preserves original unmerged graphemes (Tier 1: DIRECTLY_EXTRACTED_TEXT).
+        """
+        raw_table = self.get_raw_table()
+        tokens: List[str] = []
+        for idx, n in enumerate(numbers):
+            if n in raw_table:
+                tokens.append(raw_table[n].raw_grapheme)
+            else:
+                logger.warning("Number %d at index %d is outside raw Ankaphala domain [1, 64]", n, idx)
+                tokens.append(f"<{n}>")
+        return tokens
 
     def substitute(
         self,

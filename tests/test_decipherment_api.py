@@ -87,3 +87,4 @@ def test_execute_decipherment_endpoint(client: TestClient, test_db):
     assert "modern_kannada_bhavartha" in report
     assert "confidence_score" in report
     assert report["confidence_score"] > 0.60
+

@@ -54,3 +54,4 @@ def test_out_of_bounds_number_handling():
     assert "ಅ" in res
     assert "<999>" in res
     assert "ಕ" in res
+

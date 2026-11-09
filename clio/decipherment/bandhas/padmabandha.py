@@ -26,6 +26,7 @@ described in Kavyadarsha and Kumudendu's Siri Bhoovalaya.
 from typing import Any, Dict, List, Optional, Tuple
 
 from clio.models.decipherment import BandhaPattern
+from clio.models.provenance import DocumentationLevel, RuleVerificationState
 from clio.decipherment.bandhas.base import (
     BandhaMetadata,
     BaseBandha,
@@ -60,6 +61,13 @@ class Padmabandha(BaseBandha):
             typical_length=64,
             symmetry_order=8,
             historical_source="Kumudendu Muni, Siri Bhoovalaya & Dandin, Kavyadarsha (III.41-43).",
+            verification_state=RuleVerificationState.PARTIALLY_VERIFIED,
+            documentation_level=DocumentationLevel.INFERRED,
+            provenance_rule_id="RULE_BANDHA_PADMABANDHA_8PETAL",
+            authenticity_disclaimer=(
+                "The 8-petal lotus structure is classical poetics canon (Kavyadarsha III.41-43). "
+                "The discrete coordinate sequence across 27x27 grid coordinates is a computational discretization."
+            ),
         )
         super().__init__(meta)
 
@@ -137,3 +145,4 @@ class Padmabandha(BaseBandha):
             current_rad += 2
 
         return coords[:max_steps]
+

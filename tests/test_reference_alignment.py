@@ -51,3 +51,4 @@ def test_phonetic_sequence_alignment_with_sandhi_variant():
 
     assert report.phonetic_sandhi_matches > 0
     assert report.similarity_score >= 0.85
+

@@ -85,3 +85,4 @@ async def test_historical_chakra1_decipherment_workflow(test_db):
     # Alignment report present
     assert report.alignment_details is not None
     assert report.alignment_details.similarity_score > 0.70
+
